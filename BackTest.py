@@ -8,7 +8,7 @@ import os
 
 StartTime = dt.datetime.now()
 
-backtest_start_date = dt.datetime(2021, 12, 1)
+backtest_start_date = dt.datetime(2021, 1, 1)
 backtest_end_date = dt.datetime(2022, 5, 1)
 backtest_start_date_str = backtest_start_date.strftime('%Y-%m-%d')
 backtest_end_date_str = backtest_end_date.strftime('%Y-%m-%d')

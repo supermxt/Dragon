@@ -190,9 +190,9 @@ class RisingStrategy(bt.Strategy):
                 if data.low[-3] > self.boll_lower[security_code][-3] * 1:
                     continue
 
-                #
-                # print(
-                #     f'{current_bar_index} {current_date} {security_code} {data.low[-1]}/{self.boll_lower[security_code][-1]} {data.low[-2]}/{self.boll_lower[security_code][-2]}  {data.low[-3]}/{self.boll_lower[security_code][-3]}')
+                # if security_code == '001215':
+                #     print(
+                #         f'{current_bar_index} {current_date} {security_code} {data.low[-1]}/{self.boll_lower[security_code][-1]} {data.low[-2]}/{self.boll_lower[security_code][-2]}  {data.low[-3]}/{self.boll_lower[security_code][-3]}')
 
                 # 检查布林线宽度
                 # boll_volatility = (self.boll_upper[security_code][0] - self.boll_lower[security_code][0]) / \
