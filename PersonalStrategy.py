@@ -2,6 +2,7 @@ import backtrader as bt
 import datetime as dt
 import numpy as np
 import pandas as pd
+from KDJ2 import KDJ
 
 
 class RisingStrategy(bt.Strategy):
@@ -33,11 +34,13 @@ class RisingStrategy(bt.Strategy):
         self.boll_upper = {}
         self.boll_middle = {}
         self.boll_lower = {}
+        self.KDJ_K={}
         self.ma20 = {}
         for data in self.datas:
             self.boll_upper[data.security_code] = bt.indicators.BollingerBands(data, period=20).top
             self.boll_middle[data.security_code] = bt.indicators.BollingerBands(data, period=20).mid
             self.boll_lower[data.security_code] = bt.indicators.BollingerBands(data, period=20).bot
+            self.KDJ_K[data.security_code]=KDJ(data).K
             self.ma20[data.security_code] = bt.indicators.SMA(data, period=10)
 
         # 取得初始现金数量
@@ -97,27 +100,32 @@ class RisingStrategy(bt.Strategy):
                 sell_flag = 0
                 sell_reason = ''
 
+                # if len(self) >= (self.bar_executed + 5):
+                #     # SELL, SELL, SELL!!! (with all possible default parameters)
+                #     self.log('SELL CREATE, %.2f' % self.dataclose[0])
+
                 # if (current_position.price * 1.1 < current_position.adjbase):
                 #     sell_flag=1
-                current_trade = list(self._trades[data].values())[0][-1]
+                # current_trade = list(self._trades[data].values())[0][-1]
                 # print(current_trade.open_datetime().strftime("%Y-%m-%d"))
                 # print(current_trade.baropen,current_bar_index)
                 # if current_bar_index-current_trade.baropen == 3:
                 #     sell_flag = 1
 
                 # 跌超过5%止损
-                if (current_close / current_position.price) < 0.95:
+                if (current_close / current_position.price) < 0.9:
                     sell_flag = 1
                     sell_reason = sell_reason + f'损失：{current_close / current_position.price:.2f} '
 
-                # if (current_turnover_rate > 0.03):
-                #     sell_flag = 1
-                #     sell_reason = sell_reason + f'换手率：{current_turnover_rate:.2f} '
-                #
-                # # 检查量比大于2
-                # if (current_quantity_relative_ratio > 2):
-                #     sell_flag = 1
-                #     sell_reason = sell_reason + f'量比：{current_quantity_relative_ratio:.2f} '
+                if (current_turnover_rate > 0.03):
+                    sell_flag = 1
+                    sell_reason = sell_reason + f'换手率：{current_turnover_rate:.2f} '
+
+
+                # 检查量比大于5
+                if (current_quantity_relative_ratio > 5):
+                    sell_flag = 1
+                    sell_reason = sell_reason + f'量比：{current_quantity_relative_ratio:.2f} '
 
                 if (data.close[0] < self.boll_upper[security_code][0]) and (
                         data.high[-1] >= self.boll_upper[security_code][-1]) and (
@@ -178,8 +186,13 @@ class RisingStrategy(bt.Strategy):
                 # if data.close[before_day_index] > min(check_close_list):
                 #     continue
 
+                # 检查量比大于2
+                if current_quantity_relative_ratio > 5:
+                    print(
+                        f'{current_date}--{security_code}     {current_quantity_relative_ratio}-----------------------------------------------------------------------------------------------')
+
                 # 连续三天低于布林线低线
-                if np.isnan(self.boll_lower[security_code][-3]):
+                if np.isnan(self.boll_lower[security_code][-4]):
                     continue
                 if data.close[0] <= self.boll_lower[security_code][0]:
                     continue
@@ -189,6 +202,10 @@ class RisingStrategy(bt.Strategy):
                     continue
                 if data.low[-3] > self.boll_lower[security_code][-3] * 1:
                     continue
+                if data.low[-4] > self.boll_lower[security_code][-4] * 1:
+                    continue
+
+                print(f'{current_date}  {security_code} {self.KDJ_K[security_code][0]}')
 
                 # if security_code == '001215':
                 #     print(
@@ -202,9 +219,9 @@ class RisingStrategy(bt.Strategy):
                 # if (data.close[-1] >= self.boll_lower[security_code][-1]*1.03) or (data.close[-2] >= self.boll_lower[security_code][-2]*1.03):
                 #     continue
 
-                # 检查量比大于2
-                if current_quantity_relative_ratio < 2:
-                    continue
+                # # 检查量比大于2
+                # if current_quantity_relative_ratio < 2:
+                #     continue
 
                 # # 检查分时图45度上涨，并且之后一直高于均线
                 # data_file_path = "D:/Projects/DownloadAllHistoryData/MinuteData/Data/MinuteData_2020_20220801/"

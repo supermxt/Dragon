@@ -8,12 +8,12 @@ import os
 
 StartTime = dt.datetime.now()
 
-backtest_start_date = dt.datetime(2021, 1, 1)
+backtest_start_date = dt.datetime(2022, 1, 1)
 backtest_end_date = dt.datetime(2022, 5, 1)
 backtest_start_date_str = backtest_start_date.strftime('%Y-%m-%d')
 backtest_end_date_str = backtest_end_date.strftime('%Y-%m-%d')
 
-SampleSecurityCountLimit = 5000
+SampleSecurityCountLimit = 50
 SkipSecurityCount = 0
 
 cerebro = bt.Cerebro(tradehistory=True)
@@ -25,6 +25,8 @@ first_bar_date = ''
 print(f'{dt.datetime.now()}：====开始读取数据===========')
 for file in files:
     if not os.path.isdir(file):
+        # if not file.startswith('605117'):
+        #     continue
         if file.startswith('30'):
             continue
         if file.startswith('68'):
