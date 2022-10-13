@@ -34,13 +34,13 @@ class RisingStrategy(bt.Strategy):
         self.boll_upper = {}
         self.boll_middle = {}
         self.boll_lower = {}
-        self.KDJ_K={}
+        self.KDJ_K = {}
         self.ma20 = {}
         for data in self.datas:
             self.boll_upper[data.security_code] = bt.indicators.BollingerBands(data, period=20).top
             self.boll_middle[data.security_code] = bt.indicators.BollingerBands(data, period=20).mid
             self.boll_lower[data.security_code] = bt.indicators.BollingerBands(data, period=20).bot
-            self.KDJ_K[data.security_code]=KDJ(data).K
+            self.KDJ_K[data.security_code] = KDJ(data=data)
             self.ma20[data.security_code] = bt.indicators.SMA(data, period=10)
 
         # 取得初始现金数量
@@ -80,6 +80,8 @@ class RisingStrategy(bt.Strategy):
             last_rise = data.rise[-1]
             current_position = self.cerebro.broker.getposition(data)
             current_quantity_relative_ratio = data.quantity_relative_ratio[0]
+            print(f'{security_code}{current_date}{self.KDJ_K[security_code][0]}')
+            exit()
             # print(f'第{current_bar_index}天， {current_date} {security_code}, {security_name} ')
 
             # # 检查期间是否是增长，如果增长则打印
@@ -120,7 +122,6 @@ class RisingStrategy(bt.Strategy):
                 if (current_turnover_rate > 0.03):
                     sell_flag = 1
                     sell_reason = sell_reason + f'换手率：{current_turnover_rate:.2f} '
-
 
                 # 检查量比大于5
                 if (current_quantity_relative_ratio > 5):
